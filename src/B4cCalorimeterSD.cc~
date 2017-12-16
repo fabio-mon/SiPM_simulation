@@ -1,0 +1,117 @@
+
+#include "SiPM_SD.hh"
+#include "G4HCofThisEvent.hh"
+#include "G4Step.hh"
+#include "G4ThreeVector.hh"
+#include "G4SDManager.hh"
+#include "G4ios.hh"
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+SiPM_SD::SiPM_SD(const G4String& name, const G4String& hitsCollectionName, G4int nofCells)
+ : G4VSensitiveDetector(name),
+   fHitsCollection(0),
+   fNofCells(nofCells)
+{
+  collectionName.insert(hitsCollectionName);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+SiPM_SD::~SiPM_SD() 
+{ 
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void SiPM_SD::Initialize(G4HCofThisEvent* hce)
+{
+  // Create hits collection
+  fHitsCollection = new B4cCalorHitsCollection(SensitiveDetectorName, collectionName[0]); 
+
+  // Add this collection in hce
+  G4int hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
+  hce->AddHitsCollection( hcID, fHitsCollection ); 
+
+  // Create hits
+  // fNofCells for cells + one more for total sums 
+  for (G4int i=0; i<fNofCells+1; i++ ) 
+  {
+    fHitsCollection->insert(new B4cCalorHit());
+  }
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4bool SiPM_SD::ProcessHits(G4Step* step, G4TouchableHistory*)
+{  
+  G4Track* track = step->GetTrack();
+  G4StepPoint* point1 = step->GetPreStepPoint();
+  G4StepPoint* point2 = step->GetPostStepPoint();
+  G4TouchableHistory* touchable = (G4TouchableHistory*)(step->GetPreStepPoint()->GetTouchable());
+
+  G4String ParticleName = track->GetDynamicParticle()->GetParticleDefinition()->GetParticleName();
+  if (ParticleName != "opticalphoton") return false; 
+  
+  // step length
+  G4double stepLength = 0.;
+  stepLength = step->GetStepLength();
+
+  //photon energy
+  G4double PhotEnergy = point2 -> GetTotalEnergy ();
+
+  //photon creation process
+  G4String CreatorProcess="";
+  if(track -> GetCreatorProcess() -> GetProcessName() == "Scintillation")
+    CreatorProcess="Scintillation";
+  else
+    CreatorProcess="Cherenkov";
+
+  //Arrival time
+  G4double time = track->GetGlobalTime(); 
+
+  //SiPM number
+  G4int SiPMNumber = touchable->GetVolume()->GetCopyNo() / 3 ;
+
+  //if ( stepLength == 0. ) return false;      
+
+  // Get hit accounting data for this cell
+  B4cCalorHit* hit = (*fHitsCollection)[SiPMNumber];
+  if ( ! hit ) 
+  {
+    G4ExceptionDescription msg;
+    msg << "Cannot access hit " << SiPMNumber; 
+    G4Exception("SiPM_SD::ProcessHits()","MyCode0004", FatalException, msg);
+  }         
+
+  // Get hit for total accounting
+  B4cCalorHit* hitTotal = (*fHitsCollection)[fHitsCollection->entries()-1];
+  
+  // Add values
+  hit->AddPhotonEnergy(PhotEnergy);
+  hit->AddPhotonCreatorProc (CreatorProcess);
+  hit->AddPhotonTime (time);
+
+  hitTotal->AddPhotonEnergy(PhotEnergy);
+  hitTotal->AddPhotonCreatorProc (CreatorProcess);
+  hitTotal->AddPhotonTime (time); 
+      
+  return true;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void SiPM_SD::EndOfEvent(G4HCofThisEvent*)
+{/*
+  if ( verboseLevel>1 ) 
+  { 
+     G4int nofHits = fHitsCollection->entries();
+     G4cout
+       << G4endl 
+       << "-------->Hits Collection: in this event they are " << nofHits 
+       << " hits in the tracker chambers: " << G4endl;
+     for ( G4int i=0; i<nofHits; i++ ) (*fHitsCollection)[i]->Print();
+  }*/
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
