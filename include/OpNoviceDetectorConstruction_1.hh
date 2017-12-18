@@ -4,6 +4,7 @@
 
 #include "globals.hh"
 #include "G4VUserDetectorConstruction.hh"
+#include "MyMaterials.hh"
 
 class G4VPhysicalVolume;
 class G4GlobalMagFieldMessenger;
@@ -19,8 +20,7 @@ class OpNoviceDetectorConstruction_1 : public G4VUserDetectorConstruction
     virtual void ConstructSDandField();
      
   private:
-    void DefineMaterials();
-    G4VPhysicalVolume* DefineVolumes();
+    //G4VPhysicalVolume* DefineVolumes();
     static G4ThreadLocal G4GlobalMagFieldMessenger*  fMagFieldMessenger; 
                                       // magnetic field messenger
     G4bool  fCheckOverlaps; // option to activate checking of volumes overlaps

@@ -4,6 +4,7 @@
 
 #include "globals.hh"
 #include "G4VUserDetectorConstruction.hh"
+#include "MyMaterials.hh"
 
 class G4VPhysicalVolume;
 class G4GlobalMagFieldMessenger;
@@ -19,7 +20,6 @@ class OpNoviceDetectorConstruction_1 : public G4VUserDetectorConstruction
     virtual void ConstructSDandField();
      
   private:
-    void DefineMaterials();
     G4VPhysicalVolume* DefineVolumes();
     static G4ThreadLocal G4GlobalMagFieldMessenger*  fMagFieldMessenger; 
                                       // magnetic field messenger
@@ -27,7 +27,7 @@ class OpNoviceDetectorConstruction_1 : public G4VUserDetectorConstruction
     G4String fPDEoption;  
     G4int fsurface_type;
     G4double fwrapping_refl;
-    G4double fSigmaAlpha;
+    G4double fSigmaAlpha,fSS,fSL,fBS;
 
     G4double fExpHall_x;
     G4double fExpHall_y;
