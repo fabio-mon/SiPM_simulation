@@ -1,11 +1,8 @@
 
 #include "OpNovicePhysicsList.hh"
 #include "ConfigFile.hh"
-#include "OpNoviceDetectorConstruction_1.hh"
+#include "DetectorConstruction_planar.hh"
 #include "OpNoviceDetectorConstruction_longtile.hh"
-#include "OpNoviceDetectorConstruction_1_tilted.hh"
-#include "OpNoviceDetectorConstruction_4.hh"
-#include "OpNoviceDetectorConstruction_5.hh"
 
 #include "B4cActionInitialization.hh"
 
@@ -48,77 +45,15 @@ int main(int argc,char** argv)
     return 1;
   }
 
-
   //G4String macro;
   G4String session;
 
 #ifdef G4MULTITHREADED
   G4int nThreads = 4;
 #endif
-/*
-  for ( G4int i=1; i<argc; i=i+2 ) 
-  {
-     if      ( G4String(argv[i]) == "-m" ) macro   = argv[i+1];
-     //else if ( G4String(argv[i]) == "-u" ) session = argv[i+1];
-     else 
-        if ( G4String(argv[i]) == "-r" )
-           myseed  = atoi(argv[i+1]);
-        else 
-           if (G4String(argv[i]) == "-tilt")
-              tilt_angle =  G4UIcommand::ConvertToDouble(argv[i+1]);
-           else
-              if ( G4String(argv[i]) == "-geom" )
-              {
-                 geom = G4UIcommand::ConvertToInt(argv[i+1]);
-                 if(argc==i+4)
-                 {
-                    Crystal_length = G4UIcommand::ConvertToDouble(argv[i+2]);
-                    SiPM_length = G4UIcommand::ConvertToDouble(argv[i+3]);
-                    break;
-                 }
-                 else 
-                 {
-                   G4cout<<argc<<"\t"<<i+4<<G4endl;
-                   PrintUsage();
-                   return 1;
-                 }
-              }
-           
-     
-#ifdef G4MULTITHREADED
-     else if ( G4String(argv[i]) == "-t" ) {
-                    nThreads = G4UIcommand::ConvertToInt(argv[i+1]);
-    }
-#endif
-            else
-            {
-               PrintUsage();
-               return 1;
-            }
-  }
-*/
+
   std::string configFileName = argv[1];
   ConfigFile config(configFileName);
-/*  if(argc==4)
-  {
-    if(G4String(argv[2])=="-m") 
-      macro = argv[3];
-    else
-    {
-      PrintUsage();
-      return 1;
-    }
-  }
-*/
-/*
-  G4String CutOption="";
-  if (config.keyExists("CutOption"))
-     CutOption = config.read<std::string> ("CutOption");  
-
-  G4String PDEoption="";
-  if (config.keyExists("PDEoption"))
-     PDEoption = config.read<std::string> ("PDEoption");
-*/
 
   // Detect interactive mode (if no macro provided) and define UI session
   //
@@ -156,136 +91,35 @@ int main(int argc,char** argv)
   // Set the geometry
   //
 
-  G4int NSiPM=1;
-  if (config.keyExists("NSiPM"))
-     NSiPM= config.read<int> ("NSiPM");
-
-  G4double tilt_angle=0.*CLHEP::deg;
-  if (config.keyExists("tilt_angle"))
-     tilt_angle= config.read<double> ("tilt_angle") * CLHEP::deg;
-
-/*
-
-  G4double Crystal_x=12.*mm;
-  if (config.keyExists("Crystal_x"))
-     Crystal_x= config.read<double> ("Crystal_x") * mm;
-
-  G4double Crystal_y=12.*mm;
-  if (config.keyExists("Crystal_y"))
-     Crystal_y= config.read<double> ("Crystal_y") * mm;
-
-  G4double Crystal_z=3.*mm;
-  if (config.keyExists("Crystal_z"))
-     Crystal_z= config.read<double> ("Crystal_z") * mm;
-
-  G4double SiPM_x=5.*mm;
-  if (config.keyExists("SiPM_x"))
-     SiPM_x= config.read<double> ("SiPM_x") * mm;
-
-  G4double SiPM_y=5.*mm;
-  if (config.keyExists("SiPM_y"))
-     SiPM_y= config.read<double> ("SiPM_y") * mm;
-
-  G4double SiPM_z=0.8*mm;
-  if (config.keyExists("SiPM_z"))
-     SiPM_z= config.read<double> ("SiPM_z") * mm;
-
-  G4int surface_type=0;
-  if (config.keyExists("surface_type"))
-     surface_type= config.read<int> ("surface_type");
-
-  G4double wrapping_refl=97.;
-  if (config.keyExists("wrapping_refl"))
-     wrapping_refl= config.read<int> ("wrapping_refl");
-
-  G4double tilt_angle=0.*deg;
-  if (config.keyExists("tilt_angle"))
-     tilt_angle= config.read<double> ("tilt_angle") * deg;
-
-
-  G4double Crystal_length = std::max( Crystal_x , std::max(Crystal_y,Crystal_z) );
-  G4double SiPM_length = std::max( SiPM_x , std::max(SiPM_y,SiPM_z) );
-*/
-  switch (NSiPM)
+  G4String geometry;
+  if (config.keyExists("geometry"))
+    geometry = config.read<std::string> ("geometry");
+  else
   {
-     case 1:
-/*
-        if(Crystal_length>50.*CLHEP::mm || SiPM_length>50.*CLHEP::mm)
-        {
-           G4cout<<"ERROR: geometry not available"<<G4endl;
-           exit (EXIT_FAILURE);
-        }
-*/
-        if(tilt_angle == 0.)
-           runManager-> SetUserInitialization(new OpNoviceDetectorConstruction_1(configFileName));
-        else
-           runManager-> SetUserInitialization(new OpNoviceDetectorConstruction_1_tilted(configFileName));
-        break;
-
-  case 2:
-/*
-     if(Crystal_length>50.*CLHEP::mm || SiPM_length>50.*CLHEP::mm)
-     {
-        G4cout<<"ERROR: geometry not available"<<G4endl;
-        exit (EXIT_FAILURE);
-     }
-*/
-     runManager-> SetUserInitialization(new OpNoviceDetectorConstruction_longtile(configFileName));
-     break;
-
-  case 4:
-/*
-     if(Crystal_length>50.*CLHEP::mm || 2*SiPM_length>Crystal_length)
-     {
-        G4cout<<"ERROR: geometry not available"<<G4endl;
-        exit (EXIT_FAILURE);
-     }
-*/
-     runManager-> SetUserInitialization(new OpNoviceDetectorConstruction_4(configFileName));
-     break;
-
-  case 5:
-/*
-     if(Crystal_length>50.*CLHEP::mm || 3*SiPM_length>Crystal_length)
-     {
-        G4cout<<"ERROR: geometry not available"<<G4endl;
-        exit (EXIT_FAILURE);
-     }
-*/
-     runManager-> SetUserInitialization(new OpNoviceDetectorConstruction_5(configFileName));
-     break;
-
-  default:
-     if(tilt_angle == 0.)
-        runManager-> SetUserInitialization(new OpNoviceDetectorConstruction_1(configFileName));
-     else
-        runManager-> SetUserInitialization(new OpNoviceDetectorConstruction_1_tilted(configFileName));
+    G4cerr<<"WARNING: geometry not set, default geometry: planar"<<G4endl;
+    geometry = "planar";
   }
- /* 
-  G4cout<<"\nCrystal: "<< Crystal_x <<"x"<<Crystal_y<<"x"<<Crystal_z<<"mm^3\n"
-        <<"SiPM: " << SiPM_x <<"x"<<SiPM_y<<"x"<<SiPM_z<<"mm^3"<<G4endl;
-*/
+
+  if(geometry == "planar" || geometry == "Planar" || geometry == "PLANAR")
+    runManager-> SetUserInitialization(new DetectorConstruction_planar(configFileName));
+  else
+    if(geometry == "longtile" || geometry == "Longtile" || geometry == "LONGTILE")
+      runManager-> SetUserInitialization(new OpNoviceDetectorConstruction_longtile(configFileName));
+    else
+    {
+      G4cerr<<"ERROR: geometry "<<geometry<<" is NOT VALID!"<<G4endl;
+      exit(EXIT_FAILURE);  
+    }
+
+//Initialize physics list
   //G4VModularPhysicsList* physicsList = new FTFP_BERT;
   runManager->SetUserInitialization(new OpNovicePhysicsList());
-/*
-  G4String filename = "diffuse98";
-  filename += "_Tile" 
-           + G4UIcommand::ConvertToString(Crystal_length) + "x"
-           + G4UIcommand::ConvertToString(Crystal_length) + "x4_"
-           + G4UIcommand::ConvertToString(geom) + "SiPM" 
-           + G4UIcommand::ConvertToString(SiPM_length) + "x"
-           + G4UIcommand::ConvertToString(SiPM_length) + "_tilt"
-           + G4UIcommand::ConvertToString(tilt_angle) + "_PDE"
-           + PDEoption;
-*/
+
+//Initialize ActionInizializiation which initializes the other required classes
   B4cActionInitialization* actionInitialization = new B4cActionInitialization(configFileName);
   runManager->SetUserInitialization(actionInitialization);
   
-  // Initialize visualization
-  G4VisManager* visManager = new G4VisExecutive;
-  // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
-  // G4VisManager* visManager = new G4VisExecutive("Quiet");
-  visManager->Initialize();
+
 
   // Get the pointer to the User Interface manager
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
@@ -302,13 +136,20 @@ int main(int argc,char** argv)
   }
   else  
   {  
+    // Initialize visualization
+    G4VisManager* visManager = new G4VisExecutive;
+    // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
+    // G4VisManager* visManager = new G4VisExecutive("Quiet");
+    visManager->Initialize();
     // interactive mode : define UI session
     UImanager->ApplyCommand("/control/execute init_vis.mac");
-    if (ui->IsGUI()) {
+    if (ui->IsGUI()) 
+    {
       UImanager->ApplyCommand("/control/execute gui.mac");
     }
     ui->SessionStart();
     delete ui;
+    delete visManager;
   }
 
   // Job termination
@@ -316,7 +157,6 @@ int main(int argc,char** argv)
   // owned and deleted by the run manager, so they should not be deleted 
   // in the main() program !
 
-  delete visManager;
   delete runManager;
 }
 
