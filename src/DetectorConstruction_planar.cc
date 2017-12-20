@@ -382,17 +382,21 @@ G4MaterialPropertiesTable* myMPT5 = new G4MaterialPropertiesTable();
   simpleBoxVisAtt0->SetVisibility(false);
   expHall_log->SetVisAttributes(simpleBoxVisAtt0); //(G4VisAttributes::Invisible);
 
-  G4VisAttributes* simpleBoxVisAtt1= new G4VisAttributes(G4Colour(1.0,0.0,0.0));
+  G4VisAttributes* simpleBoxVisAtt1= new G4VisAttributes(G4Colour(1.0,0.0,0.0));//red
   simpleBoxVisAtt1->SetVisibility(true);
   crystal_log->SetVisAttributes(simpleBoxVisAtt1);
 
-  G4VisAttributes* simpleBoxVisAtt2= new G4VisAttributes(G4Colour(0.0,1.0,0.0));
+  G4VisAttributes* simpleBoxVisAtt2= new G4VisAttributes(G4Colour(0.0,1.0,0.0));//green
   simpleBoxVisAtt2->SetVisibility(true);
   SiPM_log->SetVisAttributes(simpleBoxVisAtt2);
 
-  G4VisAttributes* simpleBoxVisAtt3= new G4VisAttributes(G4Colour(0.0,0.0,1.0));
+  G4VisAttributes* simpleBoxVisAtt3= new G4VisAttributes(G4Colour(0.0,0.0,1.0));//blue
   simpleBoxVisAtt3->SetVisibility(true);
   Glue_log->SetVisAttributes(simpleBoxVisAtt3);
+
+  G4VisAttributes* simpleBoxVisAtt4= new G4VisAttributes(G4Colour(0.8,0.4,0.0));//orange
+  simpleBoxVisAtt4->SetVisibility(true);
+  Window_log->SetVisAttributes(simpleBoxVisAtt4);
 
   //
   // Always return the physical World
