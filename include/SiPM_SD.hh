@@ -22,7 +22,7 @@ class G4HCofThisEvent;
 class SiPM_SD : public G4VSensitiveDetector
 {
   public:
-    SiPM_SD(const G4String& name, const G4String& hitsCollectionName, G4int nofCells, G4String PDEoption);
+    SiPM_SD(const G4String& name, const G4String& hitsCollectionName, G4int nofCells, G4String PDEoption, G4double weight);
     virtual ~SiPM_SD();
   
     // methods from base class
@@ -35,6 +35,7 @@ class SiPM_SD : public G4VSensitiveDetector
     B4cCalorHitsCollection* fHitsCollection;
     G4int     fNofCells;
     G4String fPDEoption;
+    G4double fweight;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -25,6 +25,7 @@ class DetectorConstruction_planar : public G4VUserDetectorConstruction
                                       // magnetic field messenger
     G4bool  fCheckOverlaps; // option to activate checking of volumes overlaps
     G4String fPDEoption;  
+    G4double fweight;
     G4int fsurface_type;
     G4double fwrapping_refl;
     G4double fSigmaAlpha,fSS,fSL,fBS;

@@ -106,6 +106,11 @@ OpNoviceDetectorConstruction_longtile::OpNoviceDetectorConstruction_longtile(std
   else
      fPDEoption="";
 
+  if (config.keyExists("PDEweight"))
+     fweight = config.read<double> ("PDEweight");
+  else
+     fweight = 1.;
+
   if (config.keyExists("SigmaAlpha"))
      fSigmaAlpha = config.read<double> ("SigmaAlpha");
   else
@@ -956,7 +961,7 @@ void OpNoviceDetectorConstruction_longtile::ConstructSDandField()
   // 
   // Sensitive detectors
   //
-  SiPM_SD* SiPM = new SiPM_SD("SiPM_detector", "SiPMHitsCollection", 2,fPDEoption);
+  SiPM_SD* SiPM = new SiPM_SD("SiPM_detector", "SiPMHitsCollection", 2,fPDEoption,fweight);
   SetSensitiveDetector("SiPM",SiPM);
 }
 

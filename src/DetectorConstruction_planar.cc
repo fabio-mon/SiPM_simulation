@@ -106,6 +106,11 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
   else
      fPDEoption="";
 
+  if (config.keyExists("PDEweight"))
+     fweight = config.read<double> ("PDEweight");
+  else
+     fweight = 1.;
+
   if (config.keyExists("SigmaAlpha"))
      fSigmaAlpha = config.read<double> ("SigmaAlpha");
   else
@@ -413,7 +418,7 @@ void DetectorConstruction_planar::ConstructSDandField()
   // 
   // Sensitive detectors
   //
-  SiPM_SD* SiPM = new SiPM_SD("SiPM_detector", "SiPMHitsCollection", 1,fPDEoption);
+  SiPM_SD* SiPM = new SiPM_SD("SiPM_detector", "SiPMHitsCollection", 1,fPDEoption,fweight);
   SetSensitiveDetector("SiPM",SiPM);
 }
 

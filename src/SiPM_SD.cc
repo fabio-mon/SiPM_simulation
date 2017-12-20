@@ -62,13 +62,19 @@ double PDEHPK_MPPC(const double &energy)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-SiPM_SD::SiPM_SD(const G4String& name, const G4String& hitsCollectionName, G4int nofCells, G4String PDEoption)
+SiPM_SD::SiPM_SD(const G4String& name, const G4String& hitsCollectionName, G4int nofCells, G4String PDEoption, G4double weight)
  : G4VSensitiveDetector(name),
    fHitsCollection(0),
    fPDEoption(PDEoption),
+   fweight(weight),
    fNofCells(nofCells)
 {
   collectionName.insert(hitsCollectionName);
+  if(fweight > 1.|| fweight < 0.)
+  {
+     G4cerr<<"ERROR: invalid value of PDEweight"<<G4endl;
+     exit(EXIT_FAILURE);
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -174,7 +180,7 @@ G4bool SiPM_SD::ProcessHits_manually(const G4Step* step, G4TouchableHistory*)
   {
      rndm = G4UniformRand();
      //std::cout<<"rndm = "<<rndm<<"\tPDE ( "<<PhotEnergy/CLHEP::eV <<") = "<<PDEKETEK3x3_25um(PhotEnergy/CLHEP::eV)<<std::endl;
-     if(rndm<PDEKETEK3x3_25um(PhotEnergy/CLHEP::eV))
+     if(rndm<fweight*PDEKETEK3x3_25um(PhotEnergy/CLHEP::eV))
      {
         // Add values
         hit->AddPhotonInfo(time,PhotEnergy,CreatorProcess,SiPMNumber,Ph_x_hit,Ph_y_hit);
@@ -188,7 +194,7 @@ G4bool SiPM_SD::ProcessHits_manually(const G4Step* step, G4TouchableHistory*)
      if(fPDEoption == "KETEK3x3_15um")
      {
         rndm = G4UniformRand();
-        if(rndm<PDEKETEK3x3_15um(PhotEnergy/CLHEP::eV))
+        if(rndm<fweight*PDEKETEK3x3_15um(PhotEnergy/CLHEP::eV))
         {
            // Add values
            hit->AddPhotonInfo(time,PhotEnergy,CreatorProcess,SiPMNumber,Ph_x_hit,Ph_y_hit);
@@ -202,7 +208,7 @@ G4bool SiPM_SD::ProcessHits_manually(const G4Step* step, G4TouchableHistory*)
         if(fPDEoption == "FBK5x5_20um")
         {
            rndm = G4UniformRand();
-           if(rndm<PDEFBK5x5_20um(PhotEnergy/CLHEP::eV))
+           if(rndm<fweight*PDEFBK5x5_20um(PhotEnergy/CLHEP::eV))
            {
               // Add values
               hit->AddPhotonInfo(time,PhotEnergy,CreatorProcess,SiPMNumber,Ph_x_hit,Ph_y_hit);
@@ -216,7 +222,7 @@ G4bool SiPM_SD::ProcessHits_manually(const G4Step* step, G4TouchableHistory*)
            if(fPDEoption == "KETEKDIFFUSE_15um")
            {
               rndm = G4UniformRand();
-              if(rndm<PDEKETEKDIFFUSE_15um(PhotEnergy/CLHEP::eV))
+              if(rndm<fweight*PDEKETEKDIFFUSE_15um(PhotEnergy/CLHEP::eV))
               {
                  // Add values
                  hit->AddPhotonInfo(time,PhotEnergy,CreatorProcess,SiPMNumber,Ph_x_hit,Ph_y_hit);
@@ -230,7 +236,7 @@ G4bool SiPM_SD::ProcessHits_manually(const G4Step* step, G4TouchableHistory*)
               if(fPDEoption == "HPK_MPPC")
               {
                  rndm = G4UniformRand();
-                 if(rndm<PDEHPK_MPPC(PhotEnergy/CLHEP::eV))
+                 if(rndm<fweight*PDEHPK_MPPC(PhotEnergy/CLHEP::eV))
                  {
                     // Add values
                     hit->AddPhotonInfo(time,PhotEnergy,CreatorProcess,SiPMNumber,Ph_x_hit,Ph_y_hit);
@@ -244,7 +250,7 @@ G4bool SiPM_SD::ProcessHits_manually(const G4Step* step, G4TouchableHistory*)
                  if(fPDEoption == "PDEFBKDIFFUSE_20um")
                  {
                     rndm = G4UniformRand();
-                    if(rndm<PDEFBKDIFFUSE_20um(PhotEnergy/CLHEP::eV))
+                    if(rndm<fweight*PDEFBKDIFFUSE_20um(PhotEnergy/CLHEP::eV))
                     {
                        // Add values
                        hit->AddPhotonInfo(time,PhotEnergy,CreatorProcess,SiPMNumber,Ph_x_hit,Ph_y_hit);
@@ -256,9 +262,14 @@ G4bool SiPM_SD::ProcessHits_manually(const G4Step* step, G4TouchableHistory*)
                  }      
                  else
                  {
-                    hit->AddPhotonInfo(time,PhotEnergy,CreatorProcess,SiPMNumber,Ph_x_hit,Ph_y_hit);
-                    hitTotal->AddPhotonInfo(time,PhotEnergy,CreatorProcess,SiPMNumber,Ph_x_hit,Ph_y_hit);
-                    return true;
+                    rndm = G4UniformRand();
+                    if(rndm<fweight)
+                    {
+                       hit->AddPhotonInfo(time,PhotEnergy,CreatorProcess,SiPMNumber,Ph_x_hit,Ph_y_hit);
+                       hitTotal->AddPhotonInfo(time,PhotEnergy,CreatorProcess,SiPMNumber,Ph_x_hit,Ph_y_hit);
+                       return true;
+                    }
+                    else return false; 
                  }
 }
 
