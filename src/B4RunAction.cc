@@ -69,9 +69,9 @@ void B4RunAction::BeginOfRunAction(const G4Run* /*run*/)
 
   //Create the output filename
   ConfigFile config (fconfigFileName) ;
-  G4int NSiPM=1;
-  if (config.keyExists("NSiPM"))
-     NSiPM= config.read<int> ("NSiPM");
+  G4String geometry="planar";
+  if (config.keyExists("geometry"))
+     geometry = config.read<std::string> ("geometry");
 
   G4double Crystal_x=12.*mm;
   if (config.keyExists("Crystal_x"))
@@ -133,7 +133,7 @@ void B4RunAction::BeginOfRunAction(const G4Run* /*run*/)
            + G4UIcommand::ConvertToString(Crystal_x) + "x"
            + G4UIcommand::ConvertToString(Crystal_y) + "x"
            + G4UIcommand::ConvertToString(Crystal_z) + "x_"
-           + G4UIcommand::ConvertToString(NSiPM) + "SiPM" 
+           + geometry + "_geometry_" 
            + G4UIcommand::ConvertToString(SiPM_x) + "x"
            + G4UIcommand::ConvertToString(SiPM_y) + "x"
            + G4UIcommand::ConvertToString(SiPM_z) + "_tilt"
