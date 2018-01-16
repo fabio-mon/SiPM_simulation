@@ -8,14 +8,28 @@
 #include "G4Track.hh"
 #include "G4ios.hh"
 #include "G4SystemOfUnits.hh"
+#include "ConfigFile.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-OpNoviceStackingAction::OpNoviceStackingAction(B4cEventAction* eventAction, G4String CutOption)
+OpNoviceStackingAction::OpNoviceStackingAction(B4cEventAction* eventAction, std::string configFileName)
   : G4UserStackingAction(),
-    fCutOption(CutOption),
     fEventAction(eventAction)   
-{}
+{
+   ConfigFile config (configFileName) ;
+   if (config.keyExists("CutOption"))
+      fCutOption = config.read<std::string> ("CutOption");  
+   else
+      fCutOption = "";
+
+   if(fCutOption == "Timing")
+   {
+      if (config.keyExists("TimeCut"))
+         fTimeCut = config.read<float> ("TimeCut")*ns;  
+      else
+         fTimeCut = 34.*ns;
+   } 
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -34,7 +48,7 @@ OpNoviceStackingAction::ClassifyNewTrack(const G4Track * aTrack)
       if(fCutOption == "LightColl" && aTrack->GetTrackID() % 100 != 0)
          return fKill;
       else
-         if(fCutOption == "Timing" && aTrack->GetGlobalTime() > 34.*ns)
+         if(fCutOption == "Timing" && aTrack->GetGlobalTime() > fTimeCut)
             return fKill;
          else
             fEventAction->IncreaseTotPhot();

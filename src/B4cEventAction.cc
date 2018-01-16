@@ -105,8 +105,8 @@ void B4cEventAction::PrintEventStatistics(const G4double &mu_x,const G4double &m
      << "#Photons detected = " 
      << fPh_detected_Nb
      << G4endl
-     << "Arrival time of 5000th photon = " 
-     << fPh_time[4999]/CLHEP::ns<<" ns"
+     << "Arrival time of last detected photon ("<<fPh_time.size()<<"th phot) = " 
+     << fPh_time.back()/CLHEP::ns<<" ns"
      << G4endl
      << G4endl;
 }
@@ -115,8 +115,9 @@ void B4cEventAction::PrintEventStatistics(const G4double &mu_x,const G4double &m
 
 void B4cEventAction::BeginOfEventAction(const G4Event* event)
 {
-   G4int eventID = event->GetEventID();
-   G4cout<<"Event "<<eventID<<"starts"<<G4endl;
+   //G4int eventID = event->GetEventID();
+   //G4cout<<"Event "<<eventID<<"starts"<<G4endl;
+   std::cout<<std::endl;
    fPh_detected_Nb=0;
    fPh_tot_Nb=0;
    fPh_lost_Nb=0;

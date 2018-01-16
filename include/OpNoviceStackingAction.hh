@@ -11,7 +11,7 @@
 class OpNoviceStackingAction : public G4UserStackingAction
 {
   public:
-    OpNoviceStackingAction(B4cEventAction* eventAction,G4String CutOption);
+    OpNoviceStackingAction(B4cEventAction* eventAction,std::string configFileName);
     virtual ~OpNoviceStackingAction();
 
   public:
@@ -21,6 +21,7 @@ class OpNoviceStackingAction : public G4UserStackingAction
 
   private:
     G4String fCutOption;
+    G4double fTimeCut;
     B4cEventAction *fEventAction;
 };
 

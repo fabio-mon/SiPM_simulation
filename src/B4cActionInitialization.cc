@@ -42,7 +42,7 @@ void B4cActionInitialization::Build() const
    SetUserAction(eventAction);
    SetUserAction(new B4RunAction(eventAction,fconfigFileName));
    SetUserAction(new OpNoviceSteppingAction(eventAction,fCutOption));
-   SetUserAction(new OpNoviceStackingAction(eventAction,fCutOption));
+   SetUserAction(new OpNoviceStackingAction(eventAction,fconfigFileName));
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
