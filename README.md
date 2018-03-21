@@ -49,7 +49,7 @@
 
 #to run the executable  
 
-   ./exampleB4c <configfile>
+   ./exampleB4c <configfile.cfg>
 
 
 
