@@ -51,7 +51,8 @@
 
    ./exampleB4c <configfile.cfg>
 
-
+#the outputs of the simulation are many files produced by multithreaded geant, for example: filename_t0.root -> file produced by thread 0
+#to work with them an hadd is required or in root TChain::Add
 
 #NOTE: some configfile can be found in python folder
 
