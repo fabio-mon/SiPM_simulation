@@ -66,19 +66,20 @@ void OpNoviceSteppingAction::UserSteppingAction(const G4Step* step)
 
   if (ParticleName == "opticalphoton")
   {
-   /*  if(pre_volName == "Wrapping" && post_volName != "Lateral_world")
+    /*if((pre_volName == "Optic_window" && post_volName != "Optic_Glue") || (post_volName == "Optic_window" && pre_volName != "Optic_Glue"))
      { 
         G4cout<<pre_volName<< " -> "<<post_volName<<G4endl;
         if(track -> GetTrackStatus () == fStopAndKill || track -> GetTrackStatus () == fKillTrackAndSecondaries)
            G4cout<<"\tKILL\n"<<G4endl;
-     }*/
-     /*if(pre_volName == "SiPM")
+     }
+    */
+    /*if(pre_volName == "SiPM"  && post_volName == "SiPM")
      {
-        std::cout<<"SiPM -> "<<post_volName<<std::endl;
+       std::cout<<pre_volName <<" -> "<<post_volName<<std::endl;
         if(track -> GetTrackStatus () == fStopAndKill || track -> GetTrackStatus () == fKillTrackAndSecondaries)
            std::cout<<"\tKILL"<<std::endl;
-     }
-
+	   }*/
+     /*
      if(pre_volName == "Optic_Glue" && post_volName!="Crystal")
      {
         std::cout<<"Glue -> "<<post_volName<<std::endl;

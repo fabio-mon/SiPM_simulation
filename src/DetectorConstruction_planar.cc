@@ -69,13 +69,32 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
   else
      fSiPM_z=0.8*mm/2;
 
-  fGlue_x = fSiPM_x;
-  fGlue_y = fSiPM_y;
-  fGlue_z = 0.05*mm;
+  if (config.keyExists("GlueWindowEverywhere"))
+     fGlueWindowEverywhere = config.read<bool> ("GlueWindowEverywhere");
+  else
+     fGlueWindowEverywhere = false;
 
-  fSiPM_window_x = fSiPM_x;
-  fSiPM_window_y = fSiPM_y;
-  fSiPM_window_z = 0.15*mm;
+  if(fGlueWindowEverywhere == false)
+  {
+    fGlue_x = fSiPM_x;
+    fGlue_y = fSiPM_y;
+    fGlue_z = 0.05*mm;
+
+    fSiPM_window_x = fSiPM_x;
+    fSiPM_window_y = fSiPM_y;
+    fSiPM_window_z = 0.15*mm;
+  }
+
+  else
+  {
+    fGlue_x = fCryst_x;
+    fGlue_y = fCryst_y;
+    fGlue_z = 0.05*mm;
+
+    fSiPM_window_x = fCryst_x;
+    fSiPM_window_y = fCryst_y;
+    fSiPM_window_z = 0.15*mm;
+  }
 
     
   if (config.keyExists("SiPM_x_pos"))
@@ -90,17 +109,6 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
 
   assert(fSiPM_x_pos.size() == fSiPM_y_pos.size() );
 
-
-  if (config.keyExists("surface_type"))
-     fsurface_type= config.read<int> ("surface_type");
-  else
-     fsurface_type=0;
-
-  if (config.keyExists("wrapping_refl"))
-     fwrapping_refl= config.read<double> ("wrapping_refl");
-  else
-     fwrapping_refl=0.97;
-
   if (config.keyExists("PDEoption"))
      fPDEoption = config.read<std::string> ("PDEoption");
   else
@@ -110,6 +118,23 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
      fweight = config.read<double> ("PDEweight");
   else
      fweight = 1.;
+
+  if (config.keyExists("tilt_angle"))
+     ftilt_angle = config.read<double> ("tilt_angle")*deg;
+  else
+     ftilt_angle = 0.*deg;
+
+
+  //SURFACE in general
+  if (config.keyExists("surface_type"))
+     fsurface_type= config.read<int> ("surface_type");
+  else
+     fsurface_type=0;
+
+  if (config.keyExists("wrapping_refl"))
+     fwrapping_refl= config.read<double> ("wrapping_refl");
+  else
+     fwrapping_refl=0.97;
 
   if (config.keyExists("SigmaAlpha"))
      fSigmaAlpha = config.read<double> ("SigmaAlpha");
@@ -129,10 +154,94 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
      fBS=0.;
   }
 
-  if (config.keyExists("tilt_angle"))
-     ftilt_angle = config.read<double> ("tilt_angle")*deg;
+  //FRONT SURFACE (opposite side wrt SiPM)
+  if (config.keyExists("frontsurface_type"))
+     ffrontsurface_type= config.read<int> ("frontsurface_type");
   else
-     ftilt_angle = 0.*deg;
+     ffrontsurface_type=fsurface_type;
+
+  if (config.keyExists("frontwrapping_refl"))
+     ffrontwrapping_refl= config.read<double> ("frontwrapping_refl");
+  else
+     ffrontwrapping_refl=fwrapping_refl;
+
+  if (config.keyExists("frontSigmaAlpha"))
+     ffrontSigmaAlpha = config.read<double> ("frontSigmaAlpha");
+  else
+     ffrontSigmaAlpha=fSigmaAlpha;
+
+  if (config.keyExists("frontSpecularSpike") && config.keyExists("frontSpecularLobe") && config.keyExists("frontBackScatter"))
+  {
+     ffrontSS = config.read<double> ("frontSpecularSpike");     
+     ffrontSL = config.read<double> ("frontSpecularLobe");
+     ffrontBS = config.read<double> ("frontBackScatter");
+  }
+  else
+  {
+     ffrontSS=fSS;
+     ffrontSL=fSL;
+     ffrontBS=fBS;
+  }
+
+
+  //LATERAL SURFACES
+  if (config.keyExists("lateralsurface_type"))
+     flateralsurface_type= config.read<int> ("lateralsurface_type");
+  else
+     flateralsurface_type=fsurface_type;
+
+  if (config.keyExists("lateralwrapping_refl"))
+     flateralwrapping_refl= config.read<double> ("lateralwrapping_refl");
+  else
+     flateralwrapping_refl=fwrapping_refl;
+
+  if (config.keyExists("lateralSigmaAlpha"))
+     flateralSigmaAlpha = config.read<double> ("lateralSigmaAlpha");
+  else
+     flateralSigmaAlpha=fSigmaAlpha;
+
+  if (config.keyExists("lateralSpecularSpike") && config.keyExists("lateralSpecularLobe") && config.keyExists("lateralBackScatter"))
+  {
+     flateralSS = config.read<double> ("lateralSpecularSpike");     
+     flateralSL = config.read<double> ("lateralSpecularLobe");
+     flateralBS = config.read<double> ("lateralBackScatter");
+  }
+  else
+  {
+     flateralSS=fSS;
+     flateralSL=fSL;
+     flateralBS=fBS;
+  }
+
+  //BACK SURFACE (same side of SiPM)
+  if (config.keyExists("backsurface_type"))
+     fbacksurface_type= config.read<int> ("backsurface_type");
+  else
+     fbacksurface_type=fsurface_type;
+
+  if (config.keyExists("backwrapping_refl"))
+     fbackwrapping_refl= config.read<double> ("backwrapping_refl");
+  else
+     fbackwrapping_refl=fwrapping_refl;
+
+  if (config.keyExists("backSigmaAlpha"))
+     fbackSigmaAlpha = config.read<double> ("backSigmaAlpha");
+  else
+     fbackSigmaAlpha=fSigmaAlpha;
+
+  if (config.keyExists("backSpecularSpike") && config.keyExists("backSpecularLobe") && config.keyExists("backBackScatter"))
+  {
+     fbackSS = config.read<double> ("backSpecularSpike");     
+     fbackSL = config.read<double> ("backSpecularLobe");
+     fbackBS = config.read<double> ("backBackScatter");
+  }
+  else
+  {
+     fbackSS=fSS;
+     fbackSL=fSL;
+     fbackBS=fBS;
+  }
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -221,12 +330,24 @@ new G4PVPlacement(Rm , world_lateral_z_crystal_vector , world_lateral_z_crystal_
   G4Box* Glue_box = new G4Box("Optic_Glue",fGlue_x,fGlue_y,fGlue_z);
   G4LogicalVolume* Glue_log = new G4LogicalVolume(Glue_box,Glue_mat,"Optic_Glue",0,0,0);
   std::vector<G4VPhysicalVolume*> Glue_phys;
+  if(fGlueWindowEverywhere==true)
+  {
+    Glue_vector = G4ThreeVector( 0. , 0. , posz = fCryst_z + fGlue_z );
+    Glue_vector.rotateX(-ftilt_angle);              
+    Glue_phys.push_back( new G4PVPlacement(Rm,Glue_vector,Glue_log, "Optic_Glue",expHall_log,false,0) );
+  }
 
   //SiPM optical grease
   G4ThreeVector Window_vector;
   G4Box* Window_box = new G4Box("Optic_window",fSiPM_window_x,fSiPM_window_y,fSiPM_window_z);
   G4LogicalVolume* Window_log = new G4LogicalVolume(Window_box,Window_mat,"Optic_window",0,0,0);
   std::vector<G4VPhysicalVolume*> Window_phys;
+  if(fGlueWindowEverywhere==true)
+  {
+    Window_vector = G4ThreeVector( 0. , 0. , posz = fCryst_z +2* fGlue_z +fSiPM_window_z);
+    Window_vector.rotateX(-ftilt_angle);              
+    Window_phys.push_back( new G4PVPlacement(Rm,Window_vector,Window_log, "Optic_window",expHall_log,false,0) );
+  }
 
   //SiPM
   G4ThreeVector SiPM_vector;
@@ -236,6 +357,14 @@ new G4PVPlacement(Rm , world_lateral_z_crystal_vector , world_lateral_z_crystal_
 
   for (unsigned i=0; i < fSiPM_x_pos.size(); i++) 
   {    
+    //SiPM
+    SiPM_vector = G4ThreeVector(fSiPM_x_pos.at(i)*mm,fSiPM_y_pos.at(i)*mm, posz = fCryst_z + 2*fGlue_z + 2*fSiPM_window_z + fSiPM_z );
+    SiPM_vector.rotateX(-ftilt_angle);
+    SiPM_phys.push_back( new G4PVPlacement(Rm,SiPM_vector,SiPM_log,"SiPM", expHall_log,false,0) );  
+
+    if(fGlueWindowEverywhere==true) //in this case window and glue have been already placed
+      continue;
+
     // Optical glue
     Glue_vector = G4ThreeVector(fSiPM_x_pos.at(i)*mm,fSiPM_y_pos.at(i)*mm, posz = fCryst_z + fGlue_z );
     Glue_vector.rotateX(-ftilt_angle);              
@@ -246,16 +375,12 @@ new G4PVPlacement(Rm , world_lateral_z_crystal_vector , world_lateral_z_crystal_
     Window_vector.rotateX(-ftilt_angle);
     Window_phys.push_back( new G4PVPlacement(Rm,Window_vector,Window_log,"Optic_window", expHall_log,false,0) );
 
-    //SiPM
-    SiPM_vector = G4ThreeVector(fSiPM_x_pos.at(i)*mm,fSiPM_y_pos.at(i)*mm, posz = fCryst_z + 2*fGlue_z + 2*fSiPM_window_z + fSiPM_z );
-    SiPM_vector.rotateX(-ftilt_angle);
-    SiPM_phys.push_back( new G4PVPlacement(Rm,SiPM_vector,SiPM_log,"SiPM", expHall_log,false,0) );  
   }
 
 
 //------------------> Define surfaces
 
-// LYSO-air back surface
+// LYSO-air front surface
   G4OpticalSurface* opLYSOFrontSurface = new G4OpticalSurface("LYSOSurface");
   new G4LogicalBorderSurface("LYSOSurface", crystal_phys,world_lateral_z_crystal_phys,opLYSOFrontSurface);
 // LYSO-air lateral surface
@@ -267,73 +392,20 @@ new G4PVPlacement(Rm , world_lateral_z_crystal_vector , world_lateral_z_crystal_
   new G4LogicalBorderSurface("LYSOSurface", crystal_phys,world_lateral_y1_crystal_phys,opLYSOLateraly1Surface);
   G4OpticalSurface* opLYSOLateraly2Surface = new G4OpticalSurface("LYSOSurface");
   new G4LogicalBorderSurface("LYSOSurface", crystal_phys,world_lateral_y2_crystal_phys,opLYSOLateraly2Surface);
-
-  opLYSOFrontSurface->SetType(dielectric_dielectric);
-  opLYSOLateralx1Surface->SetType(dielectric_dielectric);
-  opLYSOLateralx2Surface->SetType(dielectric_dielectric);
-  opLYSOLateraly1Surface->SetType(dielectric_dielectric);
-  opLYSOLateraly2Surface->SetType(dielectric_dielectric);
-  opLYSOFrontSurface->SetFinish(G4OpticalSurfaceFinish(fsurface_type));
-  opLYSOLateralx1Surface->SetFinish(G4OpticalSurfaceFinish(fsurface_type));
-  opLYSOLateralx2Surface->SetFinish(G4OpticalSurfaceFinish(fsurface_type));
-  opLYSOLateraly1Surface->SetFinish(G4OpticalSurfaceFinish(fsurface_type));
-  opLYSOLateraly2Surface->SetFinish(G4OpticalSurfaceFinish(fsurface_type));
-
-  if(fsurface_type == 0 || fsurface_type == 1)
-  {
-    opLYSOFrontSurface->SetModel(glisur);
-    opLYSOLateralx1Surface->SetModel(glisur);
-    opLYSOLateralx2Surface->SetModel(glisur);
-    opLYSOLateraly1Surface->SetModel(glisur);
-    opLYSOLateraly2Surface->SetModel(glisur);
-  }
+  // LYSO-air back surface
+  G4OpticalSurface* opLYSOBackSurface = new G4OpticalSurface("LYSOSurface");
+  if(!fGlueWindowEverywhere)
+    new G4LogicalBorderSurface("LYSOSurface", crystal_phys,expHall_phys,opLYSOBackSurface);
   else
-  { 
-    opLYSOFrontSurface->SetModel(unified);
-    opLYSOLateralx1Surface->SetModel(unified);
-    opLYSOLateralx2Surface->SetModel(unified);
-    opLYSOLateraly1Surface->SetModel(unified);
-    opLYSOLateraly2Surface->SetModel(unified);
-  }
+    new G4LogicalBorderSurface("LYSOSurface", Window_phys.at(0),expHall_phys,opLYSOBackSurface);
 
-  const G4int NUM = 2;
-  G4double XX[NUM] = {1.8*eV,3.4*eV} ; 
-  G4double refractiveIndex[NUM] = {1.002, 1.002};
-  G4double specularLobe[NUM]    = {fSL, fSL};
-  G4double specularSpike[NUM]   = {fSS, fSS};
-  G4double backScatter[NUM]     = {fBS, fBS};
-  G4double REFLECT[NUM] = {fwrapping_refl,fwrapping_refl};
-  G4MaterialPropertiesTable* myST1 = new G4MaterialPropertiesTable();
+  SetSurfaceProperties(opLYSOFrontSurface,ffrontsurface_type,ffrontSigmaAlpha, ffrontwrapping_refl, ffrontSL, ffrontSS, ffrontBS);
+  SetSurfaceProperties(opLYSOLateralx1Surface,flateralsurface_type,flateralSigmaAlpha, flateralwrapping_refl, flateralSL, flateralSS, flateralBS);
+  SetSurfaceProperties(opLYSOLateralx2Surface,flateralsurface_type,flateralSigmaAlpha, flateralwrapping_refl, flateralSL, flateralSS, flateralBS);
+  SetSurfaceProperties(opLYSOLateraly1Surface,flateralsurface_type,flateralSigmaAlpha, flateralwrapping_refl, flateralSL, flateralSS, flateralBS);
+  SetSurfaceProperties(opLYSOLateraly2Surface,flateralsurface_type,flateralSigmaAlpha, flateralwrapping_refl, flateralSL, flateralSS, flateralBS);
+  SetSurfaceProperties(opLYSOBackSurface,fbacksurface_type,fbackSigmaAlpha, fbackwrapping_refl, fbackSL, fbackSS, fbackBS);
 
-  if(fsurface_type >=2)
-  {
-     opLYSOFrontSurface->SetSigmaAlpha(fSigmaAlpha);
-     opLYSOLateralx1Surface->SetSigmaAlpha(fSigmaAlpha);
-     opLYSOLateralx2Surface->SetSigmaAlpha(fSigmaAlpha);
-     opLYSOLateraly1Surface->SetSigmaAlpha(fSigmaAlpha);
-     opLYSOLateraly2Surface->SetSigmaAlpha(fSigmaAlpha);
-
-     myST1->AddProperty("SPECULARLOBECONSTANT",  XX, specularLobe,   NUM);
-     myST1->AddProperty("SPECULARSPIKECONSTANT", XX, specularSpike,   NUM);
-     myST1->AddProperty("BACKSCATTERCONSTANT",   XX, backScatter,     NUM);
-  }
-
-  if(fsurface_type == 1 || fsurface_type == 2 || fsurface_type == 4 || fsurface_type == 5)
-  {
-     myST1->AddProperty("REFLECTIVITY", XX, REFLECT,NUM);
-  }
-
-  if(fsurface_type == 2 || fsurface_type == 5)
-     myST1->AddProperty("RINDEX", XX, refractiveIndex, NUM);
-
-  if (fsurface_type >=1 && fsurface_type<=5)
-  {
-    opLYSOFrontSurface->SetMaterialPropertiesTable(myST1);
-    opLYSOLateralx1Surface->SetMaterialPropertiesTable(myST1);
-    opLYSOLateralx2Surface->SetMaterialPropertiesTable(myST1);
-    opLYSOLateraly1Surface->SetMaterialPropertiesTable(myST1);
-    opLYSOLateraly2Surface->SetMaterialPropertiesTable(myST1);
-  }
 
 //SiPM optical surface
 //
@@ -354,10 +426,10 @@ G4MaterialPropertiesTable* myMPT5 = new G4MaterialPropertiesTable();
               
   assert(sizeof(energySilicon) == sizeof(Re_n) && sizeof(energySilicon) == sizeof(Im_n) && sizeof(energySilicon) == sizeof(Eff) );
   const G4int nEnSi = sizeof(energySilicon)/sizeof(G4double);
-  myMPT5->AddProperty("EFFICIENCY",energySilicon, Eff, nEnSi);
-  //myMPT5->AddProperty("REALRINDEX", energySilicon, Re_n, nEnSi);
-  //myMPT5->AddProperty("IMAGINARYRINDEX", energySilicon, Im_n, nEnSi);
-  myMPT5->AddProperty("REFLECTIVITY",energySilicon, Refl, nEnSi);
+  //myMPT5->AddProperty("EFFICIENCY",energySilicon, Eff, nEnSi);
+  myMPT5->AddProperty("REALRINDEX", energySilicon, Re_n, nEnSi);
+  myMPT5->AddProperty("IMAGINARYRINDEX", energySilicon, Im_n, nEnSi);
+  //myMPT5->AddProperty("REFLECTIVITY",energySilicon, Refl, nEnSi);
   G4cout << "Silicon G4MaterialPropertiesTable" << G4endl;
 
   G4OpticalSurface* SiPM_opsurf = new G4OpticalSurface("SiPM_opsurf",glisur,polished, dielectric_metal);
@@ -408,6 +480,47 @@ G4MaterialPropertiesTable* myMPT5 = new G4MaterialPropertiesTable();
   //
   return expHall_phys;
 }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......---------------------------------------
+void DetectorConstruction_planar::SetSurfaceProperties
+(G4OpticalSurface* opSurface, int surface_type, double SigmaAlpha, double refl, double SL, double SS, double BS)
+{
+  opSurface->SetType(dielectric_dielectric);
+  opSurface->SetFinish(G4OpticalSurfaceFinish(surface_type));
+
+  if(surface_type == 0 || surface_type == 1)
+    opSurface->SetModel(glisur);
+  else
+    opSurface->SetModel(unified);
+
+  const G4int NUM = 2;
+  G4double XX[NUM] = {1.8*eV,3.4*eV} ; 
+  G4double refractiveIndex[NUM] = {1.002, 1.002};
+  G4double specularLobe[NUM]    = {SL, SL};
+  G4double specularSpike[NUM]   = {SS, SS};
+  G4double backScatter[NUM]     = {BS, BS};
+  G4double REFLECT[NUM] = {refl,refl};
+  G4MaterialPropertiesTable* myST1 = new G4MaterialPropertiesTable();
+
+  if(surface_type >=2)
+  {
+     opSurface->SetSigmaAlpha(SigmaAlpha);
+     myST1->AddProperty("SPECULARLOBECONSTANT",  XX, specularLobe,   NUM);
+     myST1->AddProperty("SPECULARSPIKECONSTANT", XX, specularSpike,   NUM);
+     myST1->AddProperty("BACKSCATTERCONSTANT",   XX, backScatter,     NUM);
+  }
+
+  if(surface_type == 1 || surface_type == 2 || surface_type == 4 || surface_type == 5)
+     myST1->AddProperty("REFLECTIVITY", XX, REFLECT,NUM);
+
+  if(surface_type == 2 || surface_type == 5)
+     myST1->AddProperty("RINDEX", XX, refractiveIndex, NUM);
+
+  if (surface_type >=1 && surface_type<=5)
+    opSurface->SetMaterialPropertiesTable(myST1);
+}
+
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......---------------------------------------
 
