@@ -9,7 +9,7 @@
 
    `cd <work_dir>`
 
-   `git clone git@github.com:fabio-mon/SiPM_simulation.git
+   `git clone git@github.com:fabio-mon/SiPM_simulation.git`
 
    `cd SiPM_simulation`
 
