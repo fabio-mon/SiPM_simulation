@@ -66,6 +66,8 @@ void OpNoviceSteppingAction::UserSteppingAction(const G4Step* step)
 
   if (ParticleName == "opticalphoton")
   {
+    //if(post_volName == "Optic_window" && pre_volName == "World")
+    //  G4cout<<"reflection"<<G4endl;
     /*if((pre_volName == "Optic_window" && post_volName != "Optic_Glue") || (post_volName == "Optic_window" && pre_volName != "Optic_Glue"))
      { 
         G4cout<<pre_volName<< " -> "<<post_volName<<G4endl;

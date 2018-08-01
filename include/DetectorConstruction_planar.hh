@@ -30,7 +30,7 @@ class DetectorConstruction_planar : public G4VUserDetectorConstruction
     G4String fPDEoption;  
     G4double fweight;
     G4double ftilt_angle;
-    bool fGlueWindowEverywhere;
+  //bool fGlueWindowEverywhere;
   
     G4int fsurface_type;
     G4double fwrapping_refl;
@@ -44,6 +44,9 @@ class DetectorConstruction_planar : public G4VUserDetectorConstruction
     G4int fbacksurface_type;
     G4double fbackwrapping_refl;
     G4double fbackSigmaAlpha,fbackSS,fbackSL,fbackBS;
+    G4int fWindowAirsurface_type;
+    G4double fWindowAirwrapping_refl;
+    G4double fWindowAirSigmaAlpha,fWindowAirSS,fWindowAirSL,fWindowAirBS;
 
 
   
@@ -62,6 +65,10 @@ class DetectorConstruction_planar : public G4VUserDetectorConstruction
     
     std::vector<double> fSiPM_x_pos;
     std::vector<double> fSiPM_y_pos;
+    std::vector<double> fGlue_x_pos;
+    std::vector<double> fGlue_y_pos;
+    std::vector<double> fSiPM_window_x_pos;
+    std::vector<double> fSiPM_window_y_pos;
 
     G4double fGlue_x;
     G4double fGlue_y;

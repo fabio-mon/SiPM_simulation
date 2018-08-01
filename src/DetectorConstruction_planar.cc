@@ -36,9 +36,10 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
 {
   fExpHall_x = fExpHall_y = fExpHall_z = 0.10*m;
 
-//get geom parameters from config file
+  //get geom parameters from config file
   ConfigFile config (configFileName) ;
 
+  //Crystal
   if (config.keyExists("Crystal_x"))
      fCryst_x= config.read<double> ("Crystal_x") * mm/2;
   else
@@ -54,6 +55,7 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
   else
      fCryst_z=12.*mm/2;
 
+  //SiPM
   if (config.keyExists("SiPM_x"))
      fSiPM_x= config.read<double> ("SiPM_x") * mm/2;
   else
@@ -68,12 +70,47 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
      fSiPM_z= config.read<double> ("SiPM_z") * mm/2;
   else
      fSiPM_z=0.8*mm/2;
+  
+  //Glue
+  if (config.keyExists("Glue_x"))
+     fGlue_x= config.read<double> ("Glue_x") * mm/2;
+  else
+     fGlue_x=fSiPM_x;
 
+  if (config.keyExists("Glue_y"))
+     fGlue_y= config.read<double> ("Glue_y") * mm/2;
+  else
+     fGlue_y=fSiPM_y;
+
+  if (config.keyExists("Glue_z"))
+     fGlue_z= config.read<double> ("Glue_z") * mm/2;
+  else
+     fGlue_z=0.05*mm;
+  
+  //SiPM optic window 
+  if (config.keyExists("SiPM_window_x"))
+     fSiPM_window_x= config.read<double> ("SiPM_window_x") * mm/2;
+  else
+     fSiPM_window_x=fSiPM_x;
+
+  if (config.keyExists("SiPM_window_y"))
+     fSiPM_window_y= config.read<double> ("SiPM_window_y") * mm/2;
+  else
+     fSiPM_window_y=fSiPM_y;
+
+  if (config.keyExists("SiPM_window_z"))
+     fSiPM_window_z= config.read<double> ("SiPM_window_z") * mm/2;
+  else
+     fSiPM_window_z= 0.15*mm;
+  
+  
+
+  /*
   if (config.keyExists("GlueWindowEverywhere"))
      fGlueWindowEverywhere = config.read<bool> ("GlueWindowEverywhere");
   else
      fGlueWindowEverywhere = false;
-
+  
   if(fGlueWindowEverywhere == false)
   {
     fGlue_x = fSiPM_x;
@@ -95,8 +132,9 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
     fSiPM_window_y = fCryst_y;
     fSiPM_window_z = 0.15*mm;
   }
-
+  */
     
+  //SiPM positions
   if (config.keyExists("SiPM_x_pos"))
      config.readIntoVect(fSiPM_x_pos,"SiPM_x_pos");
   else
@@ -109,6 +147,39 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
 
   assert(fSiPM_x_pos.size() == fSiPM_y_pos.size() );
 
+  //Glue positions
+  if (config.keyExists("Glue_x_pos"))
+     config.readIntoVect(fGlue_x_pos,"Glue_x_pos");
+  else
+    fGlue_x_pos = fSiPM_x_pos;
+
+  if (config.keyExists("Glue_y_pos"))
+     config.readIntoVect(fGlue_y_pos,"Glue_y_pos");
+  else
+    fGlue_y_pos = fSiPM_y_pos;
+
+  assert(fGlue_x_pos.size() == fGlue_y_pos.size() );
+
+  //optic window positions
+  if (config.keyExists("SiPM_window_x_pos"))
+     config.readIntoVect(fSiPM_window_x_pos,"SiPM_window_x_pos");
+  else
+    fSiPM_window_x_pos = fSiPM_x_pos;
+
+  if (config.keyExists("SiPM_window_y_pos"))
+     config.readIntoVect(fSiPM_window_y_pos,"SiPM_window_y_pos");
+  else
+    fSiPM_window_y_pos = fSiPM_y_pos;
+
+  assert(fSiPM_window_x_pos.size() == fSiPM_window_y_pos.size() );
+
+  //Tilt SiPM wrt to beam
+  if (config.keyExists("tilt_angle"))
+     ftilt_angle = config.read<double> ("tilt_angle")*deg;
+  else
+     ftilt_angle = 0.*deg;
+
+  //PDE settings
   if (config.keyExists("PDEoption"))
      fPDEoption = config.read<std::string> ("PDEoption");
   else
@@ -118,12 +189,6 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
      fweight = config.read<double> ("PDEweight");
   else
      fweight = 1.;
-
-  if (config.keyExists("tilt_angle"))
-     ftilt_angle = config.read<double> ("tilt_angle")*deg;
-  else
-     ftilt_angle = 0.*deg;
-
 
   //SURFACE in general
   if (config.keyExists("surface_type"))
@@ -242,6 +307,36 @@ DetectorConstruction_planar::DetectorConstruction_planar(std::string configFileN
      fbackBS=fBS;
   }
 
+  //SURFACE opticwindow-air
+  if (config.keyExists("WindowAirsurface_type"))
+     fWindowAirsurface_type= config.read<int> ("WindowAirsurface_type");
+  else
+     fWindowAirsurface_type=0;
+
+  if (config.keyExists("WindowAirwrapping_refl"))
+     fWindowAirwrapping_refl= config.read<double> ("WindowAirwrapping_refl");
+  else
+     fWindowAirwrapping_refl=0.97;
+
+  if (config.keyExists("WindowAirSigmaAlpha"))
+     fWindowAirSigmaAlpha = config.read<double> ("WindowAirSigmaAlpha");
+  else
+     fWindowAirSigmaAlpha=0.;
+
+  if (config.keyExists("WindowAirSpecularSpike") && config.keyExists("WindowAirSpecularLobe") && config.keyExists("WindowAirbackScatter"))
+  {
+     fWindowAirSS = config.read<double> ("WindowAirSpecularSpike");     
+     fWindowAirSL = config.read<double> ("WindowAirSpecularLobe");
+     fWindowAirBS = config.read<double> ("WindowAirbackScatter");
+  }
+  else
+  {
+     fWindowAirSS=fSS;
+     fWindowAirSL=fSL;
+     fWindowAirBS=fBS;
+  }
+  
+  std::cout<<"initialization ok"<<std::endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -330,38 +425,57 @@ new G4PVPlacement(Rm , world_lateral_z_crystal_vector , world_lateral_z_crystal_
   G4Box* Glue_box = new G4Box("Optic_Glue",fGlue_x,fGlue_y,fGlue_z);
   G4LogicalVolume* Glue_log = new G4LogicalVolume(Glue_box,Glue_mat,"Optic_Glue",0,0,0);
   std::vector<G4VPhysicalVolume*> Glue_phys;
+  for (unsigned i=0; i < fGlue_x_pos.size(); i++) 
+  {    
+    Glue_vector = G4ThreeVector(fGlue_x_pos.at(i)*mm,fGlue_y_pos.at(i)*mm, posz = fCryst_z + fGlue_z );
+    Glue_vector.rotateX(-ftilt_angle);              
+    Glue_phys.push_back( new G4PVPlacement(Rm,Glue_vector,Glue_log, "Optic_Glue",expHall_log,false,0) );
+  }
+  std::cout<<"glue placed"<<std::endl;
+  /*
   if(fGlueWindowEverywhere==true)
   {
     Glue_vector = G4ThreeVector( 0. , 0. , posz = fCryst_z + fGlue_z );
     Glue_vector.rotateX(-ftilt_angle);              
     Glue_phys.push_back( new G4PVPlacement(Rm,Glue_vector,Glue_log, "Optic_Glue",expHall_log,false,0) );
   }
+  */
 
   //SiPM optical grease
   G4ThreeVector Window_vector;
   G4Box* Window_box = new G4Box("Optic_window",fSiPM_window_x,fSiPM_window_y,fSiPM_window_z);
   G4LogicalVolume* Window_log = new G4LogicalVolume(Window_box,Window_mat,"Optic_window",0,0,0);
   std::vector<G4VPhysicalVolume*> Window_phys;
+  for (unsigned i=0; i < fSiPM_window_x_pos.size(); i++) 
+  {    
+    //SiPM optical grease
+    Window_vector = G4ThreeVector(fSiPM_window_x_pos.at(i)*mm,fSiPM_window_y_pos.at(i)*mm, posz = fCryst_z +2* fGlue_z +fSiPM_window_z);
+    Window_vector.rotateX(-ftilt_angle);
+    Window_phys.push_back( new G4PVPlacement(Rm,Window_vector,Window_log,"Optic_window", expHall_log,false,0) );
+  }
+  std::cout<<"window placed"<<std::endl;
+
+  /*
   if(fGlueWindowEverywhere==true)
   {
     Window_vector = G4ThreeVector( 0. , 0. , posz = fCryst_z +2* fGlue_z +fSiPM_window_z);
     Window_vector.rotateX(-ftilt_angle);              
     Window_phys.push_back( new G4PVPlacement(Rm,Window_vector,Window_log, "Optic_window",expHall_log,false,0) );
   }
+  */
 
   //SiPM
   G4ThreeVector SiPM_vector;
   G4Box* SiPM_box = new G4Box("SiPM",fSiPM_x,fSiPM_y,fSiPM_z);
   G4LogicalVolume* SiPM_log = new G4LogicalVolume(SiPM_box,SiPM_mat,"SiPM",0,0,0);
   std::vector<G4VPhysicalVolume*> SiPM_phys;
-
   for (unsigned i=0; i < fSiPM_x_pos.size(); i++) 
   {    
     //SiPM
     SiPM_vector = G4ThreeVector(fSiPM_x_pos.at(i)*mm,fSiPM_y_pos.at(i)*mm, posz = fCryst_z + 2*fGlue_z + 2*fSiPM_window_z + fSiPM_z );
     SiPM_vector.rotateX(-ftilt_angle);
     SiPM_phys.push_back( new G4PVPlacement(Rm,SiPM_vector,SiPM_log,"SiPM", expHall_log,false,0) );  
-
+    /*
     if(fGlueWindowEverywhere==true) //in this case window and glue have been already placed
       continue;
 
@@ -374,7 +488,7 @@ new G4PVPlacement(Rm , world_lateral_z_crystal_vector , world_lateral_z_crystal_
     Window_vector = G4ThreeVector(fSiPM_x_pos.at(i)*mm,fSiPM_y_pos.at(i)*mm, posz = fCryst_z +2* fGlue_z +fSiPM_window_z);
     Window_vector.rotateX(-ftilt_angle);
     Window_phys.push_back( new G4PVPlacement(Rm,Window_vector,Window_log,"Optic_window", expHall_log,false,0) );
-
+    */
   }
 
 
@@ -394,10 +508,7 @@ new G4PVPlacement(Rm , world_lateral_z_crystal_vector , world_lateral_z_crystal_
   new G4LogicalBorderSurface("LYSOSurface", crystal_phys,world_lateral_y2_crystal_phys,opLYSOLateraly2Surface);
   // LYSO-air back surface
   G4OpticalSurface* opLYSOBackSurface = new G4OpticalSurface("LYSOSurface");
-  if(!fGlueWindowEverywhere)
-    new G4LogicalBorderSurface("LYSOSurface", crystal_phys,expHall_phys,opLYSOBackSurface);
-  else
-    new G4LogicalBorderSurface("LYSOSurface", Window_phys.at(0),expHall_phys,opLYSOBackSurface);
+  new G4LogicalBorderSurface("LYSOSurface", crystal_phys,expHall_phys,opLYSOBackSurface);
 
   SetSurfaceProperties(opLYSOFrontSurface,ffrontsurface_type,ffrontSigmaAlpha, ffrontwrapping_refl, ffrontSL, ffrontSS, ffrontBS);
   SetSurfaceProperties(opLYSOLateralx1Surface,flateralsurface_type,flateralSigmaAlpha, flateralwrapping_refl, flateralSL, flateralSS, flateralBS);
@@ -406,6 +517,14 @@ new G4PVPlacement(Rm , world_lateral_z_crystal_vector , world_lateral_z_crystal_
   SetSurfaceProperties(opLYSOLateraly2Surface,flateralsurface_type,flateralSigmaAlpha, flateralwrapping_refl, flateralSL, flateralSS, flateralBS);
   SetSurfaceProperties(opLYSOBackSurface,fbacksurface_type,fbackSigmaAlpha, fbackwrapping_refl, fbackSL, fbackSS, fbackBS);
 
+  // Optic grease - air surface (trick to simulate SiPM reflective coating)
+  vector<G4OpticalSurface*> opWindowAir;
+  for(unsigned i=0;i<Window_phys.size();++i)
+  {
+    opWindowAir.push_back( new G4OpticalSurface("WindowAirSurface") );
+    new G4LogicalBorderSurface("WindowAirSurface", Window_phys.at(i),expHall_phys,opWindowAir.at(i));
+    SetSurfaceProperties(opWindowAir.at(i),fWindowAirsurface_type,fWindowAirSigmaAlpha, fWindowAirwrapping_refl, fWindowAirSL, fWindowAirSS, fWindowAirBS);
+  }
 
 //SiPM optical surface
 //
